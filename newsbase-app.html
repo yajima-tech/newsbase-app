@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ニューズベース 案件管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --blue-text: #1d4ed8;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --green-text: #15803d;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+  --amber-text: #b45309;
+  --red: #ef4444;
+  --red-light: #fef2f2;
+  --red-text: #b91c1c;
+  --purple: #9333ea;
+  --purple-light: #faf5ff;
+  --purple-text: #7e22ce;
+  --gray: #6b7280;
+  --gray-light: #f9fafb;
+  --gray-text: #374151;
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  --text: #111827;
+  --text2: #6b7280;
+  --text3: #9ca3af;
+  --bg: #ffffff;
+  --bg2: #f9fafb;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.1);
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--blue);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.logo-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 14px;
+  font-size: 13px;
+  color: var(--text2);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color .15s;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--blue); font-weight: 500; border-bottom-color: var(--blue); }
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sync-status {
+  font-size: 11px;
+  color: var(--green);
+  background: var(--green-light);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  font-family: 'Noto Sans JP', sans-serif;
+  white-space: nowrap;
+}
+
+.btn-ghost {
+  background: #fff;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover { background: var(--bg2); color: var(--text); }
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+}
+
+.btn-primary:hover { background: #1d4ed8; }
+.btn-primary:active { transform: scale(.98); }
+
+/* ── Main layout ── */
+.main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 24px;
+}
+
+/* ── Page header ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.search {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px 8px 36px;
+  font-size: 13px;
+  color: var(--text);
+  background: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.search:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+.filter-select {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text);
+  background: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  outline: none;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.filter-select:focus { border-color: var(--blue); }
+
+/* ── Table ── */
+.table-wrap {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+thead th:hover { color: var(--text); }
+thead th.sort-asc::after { content: ' ↑'; color: var(--blue); }
+thead th.sort-desc::after { content: ' ↓'; color: var(--blue); }
+
+tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background .1s; cursor: pointer; }
+tbody tr:hover td { background: #f0f7ff; }
+
+.cell-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.cell-venue { max-width: 200px; font-size: 12px; }
+.cell-biz { max-width: 240px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell-date { font-family: 'JetBrains Mono', monospace; font-size: 12px; white-space: pre-line; line-height: 1.6; }
+
+/* ── Deadline chip ── */
+.dl { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; }
+.dl.overdue { color: var(--red-text); }
+.dl.near    { color: var(--amber-text); font-weight: 700; }
+.dl.ok      { color: var(--text2); }
+.dl.none    { color: var(--text3); }
+
+/* ── Status badge ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+.badge-blue   { background: var(--blue-light);   color: var(--blue-text);   } .badge-blue::before   { background: var(--blue); }
+.badge-green  { background: var(--green-light);  color: var(--green-text);  } .badge-green::before  { background: var(--green); }
+.badge-amber  { background: var(--amber-light);  color: var(--amber-text);  } .badge-amber::before  { background: var(--amber); }
+.badge-red    { background: var(--red-light);    color: var(--red-text);    } .badge-red::before    { background: var(--red); }
+.badge-purple { background: var(--purple-light); color: var(--purple-text); } .badge-purple::before { background: var(--purple); }
+.badge-gray   { background: #f3f4f6;             color: var(--gray-text);   border: 1px solid var(--border); } .badge-gray::before { background: var(--gray); }
+
+/* ── Action buttons ── */
+.act { display: flex; gap: 6px; }
+
+.act-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text2);
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all .12s;
+}
+
+.act-btn:hover { background: var(--bg2); color: var(--text); border-color: #d1d5db; }
+.act-btn.primary { background: var(--blue-light); color: var(--blue-text); border-color: #bfdbfe; }
+.act-btn.primary:hover { background: #dbeafe; }
+
+/* ── Empty state ── */
+.empty {
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--text3);
+}
+
+.empty-title { font-size: 15px; color: var(--text2); margin-bottom: 6px; }
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-title { font-size: 16px; font-weight: 700; }
+
+.modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: var(--bg2);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover { background: var(--border); }
+
+.modal-body { padding: 20px 24px 24px; }
+
+/* Detail view */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.detail-field {}
+.detail-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+.detail-value { font-size: 13px; color: var(--text); line-height: 1.6; }
+.detail-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.detail-full { margin-bottom: 14px; }
+.detail-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* Edit form */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  outline: none;
+  background: #fff;
+  transition: border-color .15s;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-footer { display: flex; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border); margin-top: 4px; }
+
+/* ── Stats bar ── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+}
+
+.stat-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.stat-value.blue { color: var(--blue); }
+.stat-value.green { color: var(--green); }
+.stat-value.amber { color: var(--amber); }
+.stat-value.red { color: var(--red); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #111827;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 500;
+  display: none;
+  box-shadow: var(--shadow-md);
+}
+
+.toast.show { display: block; animation: fadeup .2s ease; }
+@keyframes fadeup { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .cell-biz, .cell-venue { display: none; }
+}
+
+@media (max-width: 600px) {
+  .main { padding: 16px; }
+  .header-inner { padding: 0 16px; gap: 16px; }
+  .nav { display: none; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Print ── */
+@media print {
+  .header-actions, .toolbar .btn, .act, .modal-overlay { display: none !important; }
+  body { background: #fff; }
+  .table-wrap { box-shadow: none; border: 1px solid #ccc; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-mark">NB</div>
+      <span class="logo-text">ニューズベース案件管理</span>
+    </a>
+    <nav class="nav">
+      <button class="nav-link active" onclick="showPage('list')">案件一覧</button>
+      <button class="nav-link" onclick="showPage('new')">新規作成</button>
+    </nav>
+    <div class="header-actions">
+      <div class="sync-status" id="syncStatus">✓ 同期済み</div>
+      <button class="btn btn-ghost" id="exportBtn" onclick="exportCSV()">↓ CSV出力</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Stats -->
+  <div class="stats" id="statsBar">
+    <div class="stat-card">
+      <div class="stat-label">総案件数</div>
+      <div class="stat-value blue" id="statTotal">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">進行中</div>
+      <div class="stat-value green" id="statActive">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">見積期限（7日以内）</div>
+      <div class="stat-value amber" id="statNear">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">期限超過 / 要対応</div>
+      <div class="stat-value red" id="statUrgent">0</div>
+    </div>
+  </div>
+
+  <!-- Page: List -->
+  <div id="page-list">
+    <div class="page-header">
+      <h1 class="page-title">案件一覧</h1>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search" type="text" placeholder="案件名・クライアント・会場で検索..." id="searchInput" oninput="renderTable()">
+      </div>
+      <select class="filter-select" id="statusFilter" onchange="renderTable()">
+        <option value="">すべてのステータス</option>
+        <option value="見積依頼受領">見積依頼受領</option>
+        <option value="見積作成中">見積作成中</option>
+        <option value="詳細確認中">詳細確認中</option>
+        <option value="見積提出済み・引合い中">見積提出済み・引合い中</option>
+        <option value="受注済み・準備中">受注済み・準備中</option>
+        <option value="失注">失注</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('name')">案件名</th>
+            <th onclick="sortBy('client')">エンドクライアント</th>
+            <th onclick="sortBy('date')">日程</th>
+            <th class="cell-venue">会場</th>
+            <th class="cell-biz">業務内容</th>
+            <th onclick="sortBy('dl')">見積提出期限</th>
+            <th onclick="sortBy('status')">ステータス</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Page: New -->
+  <div id="page-new" style="display:none">
+    <div class="page-header">
+      <h1 class="page-title">新規案件作成</h1>
+    </div>
+    <div class="table-wrap" style="padding:24px">
+      <div id="newFormBody"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal" onclick="closeModalOutside(event,'detailModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detailTitle">案件詳細</div>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal" onclick="closeModalOutside(event,'editModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="editTitle">案件を編集</div>
+      <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+    </div>
+    <div class="modal-body" id="editBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA（Gmail同期済みの実データ）
+// ─────────────────────────────────────────
+const DEFAULT_DATA = [
+  {
+    id: "rsj-2026",
+    name: "RSJ Technology Symposium 2026",
+    client: "ローデ・シュワルツ・ジャパン",
+    contact: "瀬津幸太",
+    date: "2026-05-22",
+    prepDate: "2026-05-21",
+    venue: "赤坂インターシティコンファレンス",
+    venueDetail: "6会場（the Air 545㎡含む）拘束: 設営 17:00〜21:00 / 本番 7:00〜21:00 来場予定: 700名",
+    biz: "進行D×6・AD×12・ST×12、収録（カメラ×6・編集×6会場）、サテライト配信1会場（午前）",
+    dl: "2026-03-18",
+    dlNote: "本日期限。可能な限り本日中に提出。",
+    status: "詳細確認中",
+    estStatus: "未提出",
+    note: "英語対応は不要（単価のみ確認中）。設営日不要。会場オペレーター非常駐のため追加手配必要。",
+    updatedAt: "2026-03-18"
+  },
+  {
+    id: "stech-2026",
+    name: "STech I Forum 2026",
+    client: "双日テックイノベーション",
+    contact: "佐藤奈緒",
+    date: "2026-11-12",
+    prepDate: "2026-11-11",
+    venue: "TAKANAWA GATEWAY Convention Center（地下2階）",
+    venueDetail: "3トラック構成。基調講演: Link PILLAR A（400席）/ 分科会②: Link PILLAR C（400席）/ 分科会③: Room1（100席）/ 展示: Link PILLAR B。作業時間 9:00〜21:00",
+    biz: "進行統括×1・D×3・AD×8、サテライト配信（基調講演）、Zoom配信、収録・アーカイブ、編集（MP4 FHD）",
+    dl: "2026-03-25",
+    dlNote: "先方提案日: 3/27。24〜25日頃までに提出要。",
+    status: "見積依頼受領",
+    estStatus: "未提出",
+    note: "コンペ案件。RFP情報あり（関係者限）。カメラ台数・画面構成は主催者確認中。納品: イベント後2〜3週間以内、MP4 FHD、セッション別切り出し。",
+    updatedAt: "2026-03-18"
+  },
+  {
+    id: "ana-2026",
+    name: "2026年度 ANA入社式",
+    client: "ANA（全日本空輸）",
+    contact: "長﨑いずみ",
+    date: "2026-04-01",
+    prepDate: "2026-03-31",
+    venue: "ANA格納庫",
+    venueDetail: "入館申請必要。車両搬入不要（台車搬入）。スタッフ名簿・身分証提出済み。",
+    biz: "進行・運営スタッフ手配、仮設トイレ備品手配（トイレ用ごみ箱・サニタリーBOX等）、申請書類対応",
+    dl: "",
+    dlNote: "発注済み。見積は承認済みで進行中。",
+    status: "受注済み・準備中",
+    estStatus: "提出済み",
+    note: "仮設トイレ備品: サニタリーBOX 50個（発注数2）など確定済み。宿泊費はKST手配・請求形式。",
+    updatedAt: "2026-03-18"
+  },
+  {
+    id: "sansan-info-2026",
+    name: "情報システムCAMP（Sansan）",
+    client: "Sansan",
+    contact: "田澤健一",
+    date: "2026-04-22",
+    prepDate: "",
+    venue: "詳細調整中",
+    venueDetail: "4/22（水）・4/23（木）2日間。3月中旬までに配信・進行周りを確定予定。",
+    biz: "配信・進行オペレーター（D/ADは別会社担当）",
+    dl: "",
+    dlNote: "正式受注済み。詳細詰め中。",
+    status: "受注済み・準備中",
+    estStatus: "提出済み",
+    note: "Slack招待済み。巻きで進める方針。進行D/ADは別会社のため、配信・オペレーターのみ対応。",
+    updatedAt: "2026-03-18"
+  },
+  {
+    id: "kensetsu-dxcamp",
+    name: "建設業DXCAMP",
+    client: "Sansan",
+    contact: "太田優希",
+    date: "2026-08-01",
+    prepDate: "",
+    venue: "TODAホール（ホールAのみ）",
+    venueDetail: "日程は8月、詳細未定。前回実績: オペレーター2名（登壇スライド管理・進行スライド管理）。",
+    biz: "機材テクニカル、TD×1・オペレーター×2名、PC・スイッチャー・計時等",
+    dl: "2026-03-12",
+    dlNote: "見積提出済み。先方引合い中（結果待ち）。",
+    status: "見積提出済み・引合い中",
+    estStatus: "提出済み",
+    note: "現在引合い状態。結果が出次第連絡予定。",
+    updatedAt: "2026-03-18"
+  },
+  {
+    id: "yakk-ap-2026",
+    name: "YKK AP 社内イベント（配信業務）",
+    client: "YKK AP",
+    contact: "高橋直樹",
+    date: "",
+    prepDate: "",
+    venue: "【東京】YKK 60ビル（墨田区亀沢）【富山】YKK AP R&Dセンター（黒部市）",
+    venueDetail: "東京・富山の2会場同時対応。",
+    biz: "映像オペレーター、リアルタイム配信、アーカイブ録画、機材持込",
+    dl: "2026-03-19",
+    dlNote: "急なご依頼。本日翌日中に提出要。",
+    status: "見積作成中",
+    estStatus: "未提出",
+    note: "9月の東京・富山にて配信業務。急な依頼のため迅速対応が必要。",
+    updatedAt: "2026-03-18"
+  },
+  {
+    id: "sansan-samurai-nagoya",
+    name: "Sansan Samurai DX ＠名古屋",
+    client: "Sansan",
+    contact: "松本瞳",
+    date: "2026-02-01",
+    prepDate: "",
+    venue: "名古屋",
+    venueDetail: "",
+    biz: "映像・音響・配信オペレーション",
+    dl: "",
+    dlNote: "予算優先で他社決定。失注。",
+    status: "失注",
+    estStatus: "提出済み",
+    note: "Sansan様のイベントについては今後4月情報システムCAMPで連携継続予定。スピンオフや別テーマの拡大時にも声掛けあり。",
+    updatedAt: "2026-03-18"
+  }
+];
+
+// ─────────────────────────────────────────
+// State
+// ─────────────────────────────────────────
+let projects = [];
+let sortKey = '';
+let sortDir = 1;
+
+// Load from localStorage or use defaults
+function loadData() {
+  try {
+    const saved = localStorage.getItem('nb_projects');
+    if (saved) {
+      projects = JSON.parse(saved);
+    } else {
+      projects = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      saveData();
+    }
+  } catch(e) {
+    projects = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+}
+
+function saveData() {
+  localStorage.setItem('nb_projects', JSON.stringify(projects));
+}
+
+// ─────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────
+const STATUS_MAP = {
+  '見積依頼受領':        'badge-blue',
+  '見積作成中':          'badge-amber',
+  '詳細確認中':          'badge-amber',
+  '見積提出済み・引合い中': 'badge-purple',
+  '受注済み・準備中':     'badge-green',
+  '失注':               'badge-gray',
+};
+
+function dlInfo(dl) {
+  if (!dl) return { cls: 'none', label: '—' };
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const d = new Date(dl);
+  const diff = Math.ceil((d - today) / 86400000);
+  const label = dl.replace(/-/g, '/').replace('/2026', '').replace('2026/', '');
+  if (diff < 0)  return { cls: 'overdue', label: label + '（超過）' };
+  if (diff === 0) return { cls: 'near',   label: label + '（本日！）' };
+  if (diff <= 7)  return { cls: 'near',   label: label + '（あと' + diff + '日）' };
+  return { cls: 'ok', label: label };
+}
+
+function fmtDate(d) {
+  if (!d) return '未定';
+  const dt = new Date(d);
+  return (dt.getMonth()+1) + '/' + dt.getDate();
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ─────────────────────────────────────────
+// Stats
+// ─────────────────────────────────────────
+function updateStats() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const active = projects.filter(p => ['見積依頼受領','見積作成中','詳細確認中','見積提出済み・引合い中','受注済み・準備中'].includes(p.status)).length;
+  let near = 0, urgent = 0;
+  projects.forEach(p => {
+    if (!p.dl) return;
+    const diff = Math.ceil((new Date(p.dl) - today) / 86400000);
+    if (diff < 0) urgent++;
+    else if (diff <= 7) near++;
+  });
+  document.getElementById('statTotal').textContent = projects.length;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statNear').textContent = near;
+  document.getElementById('statUrgent').textContent = urgent;
+}
+
+// ─────────────────────────────────────────
+// Table render
+// ─────────────────────────────────────────
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sort-asc','sort-desc');
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const sf = document.getElementById('statusFilter').value;
+
+  let list = projects.filter(p => {
+    if (sf && p.status !== sf) return false;
+    if (q) {
+      const s = (p.name + p.client + p.venue + p.biz).toLowerCase();
+      if (!s.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sortKey) {
+    list.sort((a, b) => {
+      const av = a[sortKey] || '';
+      const bv = b[sortKey] || '';
+      return av < bv ? -sortDir : av > bv ? sortDir : 0;
+    });
+  }
+
+  const tbody = document.getElementById('tableBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-title">該当する案件がありません</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(p => {
+    const di = dlInfo(p.dl);
+    const sc = STATUS_MAP[p.status] || 'badge-gray';
+    const dateStr = p.date ? fmtDate(p.date) + (p.prepDate ? '\n準備 ' + fmtDate(p.prepDate) : '') : '未定';
+    return `<tr onclick="openDetail('${esc(p.id)}')">
+      <td><div class="cell-name">${esc(p.name)}</div></td>
+      <td style="white-space:nowrap">${esc(p.client)}</td>
+      <td class="cell-date">${esc(dateStr)}</td>
+      <td class="cell-venue" style="font-size:12px">${esc(p.venue)}</td>
+      <td><div class="cell-biz">${esc(p.biz)}</div></td>
+      <td><span class="dl ${di.cls}">${esc(di.label)}</span></td>
+      <td><span class="badge ${sc}">${esc(p.status)}</span></td>
+      <td onclick="event.stopPropagation()">
+        <div class="act">
+          <button class="act-btn primary" onclick="openDetail('${esc(p.id)}')">詳細</button>
+          <button class="act-btn" onclick="openEdit('${esc(p.id)}')">編集</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+// Detail Modal
+// ─────────────────────────────────────────
+function openDetail(id) {
+  const p = projects.find(x => x.id === id);
+  if (!p) return;
+  const di = dlInfo(p.dl);
+  const sc = STATUS_MAP[p.status] || 'badge-gray';
+
+  document.getElementById('detailTitle').textContent = p.name;
+  document.getElementById('detailBody').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <span class="badge ${sc}">${esc(p.status)}</span>
+      ${p.dl ? `<span class="badge ${di.cls==='overdue'?'badge-red':di.cls==='near'?'badge-amber':'badge-gray'}">${esc(di.label)}</span>` : ''}
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-field">
+        <div class="detail-label">エンドクライアント</div>
+        <div class="detail-value">${esc(p.client)}</div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-label">NB担当者</div>
+        <div class="detail-value">${esc(p.contact||'—')}</div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-label">開催日</div>
+        <div class="detail-value mono">${p.date ? new Date(p.date).toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'}) : '未定'}${p.prepDate ? '　準備日: '+new Date(p.prepDate).toLocaleDateString('ja-JP',{month:'long',day:'numeric'}) : ''}</div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-label">見積提出期限</div>
+        <div class="detail-value mono dl ${di.cls}">${esc(di.label)}</div>
+      </div>
+    </div>
+
+    <div class="detail-full">
+      <div class="detail-label">会場</div>
+      <div class="detail-value">${esc(p.venue)}${p.venueDetail?'<br><span style="font-size:12px;color:var(--text3)">'+esc(p.venueDetail)+'</span>':''}</div>
+    </div>
+
+    <hr class="detail-divider">
+
+    <div class="detail-full">
+      <div class="detail-label">業務内容</div>
+      <div class="detail-value">${esc(p.biz)}</div>
+    </div>
+
+    ${p.dlNote ? `<div class="detail-full">
+      <div class="detail-label">見積備考</div>
+      <div class="detail-value" style="font-size:12px;color:var(--text2)">${esc(p.dlNote)}</div>
+    </div>` : ''}
+
+    ${p.note ? `<div class="detail-full">
+      <div class="detail-label">メモ・特記事項</div>
+      <div class="detail-value" style="font-size:12px;color:var(--text2);white-space:pre-wrap">${esc(p.note)}</div>
+    </div>` : ''}
+
+    <hr class="detail-divider">
+
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;color:var(--text3)">最終更新: ${esc(p.updatedAt||'—')}</span>
+      <button class="btn btn-primary" onclick="closeModal('detailModal');openEdit('${esc(p.id)}')">編集する</button>
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+// ─────────────────────────────────────────
+// Edit Modal
+// ─────────────────────────────────────────
+function openEdit(id) {
+  const p = projects.find(x => x.id === id) || {};
+  const isNew = !p.id;
+  document.getElementById('editTitle').textContent = isNew ? '新規案件作成' : '案件を編集';
+  renderEditForm('editBody', p, isNew);
+  document.getElementById('editModal').classList.add('open');
+}
+
+function renderEditForm(targetId, p, isNew) {
+  const statuses = ['見積依頼受領','見積作成中','詳細確認中','見積提出済み・引合い中','受注済み・準備中','失注'];
+  const estStatuses = ['未提出','提出済み','採択','失注'];
+
+  const statusOpts = statuses.map(s => `<option value="${s}" ${p.status===s?'selected':''}>${s}</option>`).join('');
+  const estOpts = estStatuses.map(s => `<option value="${s}" ${(p.estStatus||'未提出')===s?'selected':''}>${s}</option>`).join('');
+
+  document.getElementById(targetId).innerHTML = `
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">案件名 *</label>
+        <input class="form-input" id="f-name" value="${esc(p.name||'')}" placeholder="例: RSJ Technology Symposium 2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label">エンドクライアント *</label>
+        <input class="form-input" id="f-client" value="${esc(p.client||'')}" placeholder="例: ローデ・シュワルツ・ジャパン">
+      </div>
+      <div class="form-group">
+        <label class="form-label">NB担当者</label>
+        <input class="form-input" id="f-contact" value="${esc(p.contact||'')}" placeholder="例: 瀬津幸太">
+      </div>
+      <div class="form-group">
+        <label class="form-label">開催日</label>
+        <input class="form-input" id="f-date" type="date" value="${p.date||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">準備日</label>
+        <input class="form-input" id="f-prepDate" type="date" value="${p.prepDate||''}">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">会場</label>
+        <input class="form-input" id="f-venue" value="${esc(p.venue||'')}" placeholder="例: 赤坂インターシティコンファレンス">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">会場詳細・拘束時間</label>
+        <input class="form-input" id="f-venueDetail" value="${esc(p.venueDetail||'')}" placeholder="例: 6会場構成、拘束 9:00〜21:00">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">業務内容</label>
+        <textarea class="form-textarea" id="f-biz" placeholder="例: 進行D×6・AD×12、収録（カメラ×6）">${esc(p.biz||'')}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">見積提出期限</label>
+        <input class="form-input" id="f-dl" type="date" value="${p.dl||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">見積ステータス</label>
+        <select class="form-select" id="f-estStatus">${estOpts}</select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ステータス *</label>
+        <select class="form-select" id="f-status">${statusOpts}</select>
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">見積備考</label>
+        <input class="form-input" id="f-dlNote" value="${esc(p.dlNote||'')}" placeholder="例: 先方提案日 3/27のため24〜25日中に提出">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">メモ・特記事項</label>
+        <textarea class="form-textarea" id="f-note" placeholder="社内メモ、特記事項など">${esc(p.note||'')}</textarea>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-ghost" onclick="closeModal('editModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveEdit('${esc(p.id||'')}')">保存する</button>
+    </div>
+  `;
+}
+
+function saveEdit(id) {
+  const get = i => document.getElementById(i).value.trim();
+  const name = get('f-name');
+  if (!name) { alert('案件名は必須です'); return; }
+
+  if (id) {
+    const idx = projects.findIndex(p => p.id === id);
+    if (idx >= 0) {
+      projects[idx] = {
+        ...projects[idx],
+        name, client: get('f-client'), contact: get('f-contact'),
+        date: get('f-date'), prepDate: get('f-prepDate'),
+        venue: get('f-venue'), venueDetail: get('f-venueDetail'),
+        biz: get('f-biz'), dl: get('f-dl'), dlNote: get('f-dlNote'),
+        status: get('f-status'), estStatus: get('f-estStatus'),
+        note: get('f-note'),
+        updatedAt: new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'-')
+      };
+    }
+  } else {
+    const newId = 'proj-' + Date.now();
+    projects.push({
+      id: newId, name, client: get('f-client'), contact: get('f-contact'),
+      date: get('f-date'), prepDate: get('f-prepDate'),
+      venue: get('f-venue'), venueDetail: get('f-venueDetail'),
+      biz: get('f-biz'), dl: get('f-dl'), dlNote: get('f-dlNote'),
+      status: get('f-status'), estStatus: get('f-estStatus'),
+      note: get('f-note'),
+      updatedAt: new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'-')
+    });
+  }
+
+  saveData();
+  closeModal('editModal');
+  renderTable();
+  updateStats();
+  toast('✓ 保存しました');
+}
+
+// ─────────────────────────────────────────
+// New project page
+// ─────────────────────────────────────────
+function showPage(page) {
+  document.getElementById('page-list').style.display = page === 'list' ? '' : 'none';
+  document.getElementById('page-new').style.display  = page === 'new'  ? '' : 'none';
+  document.querySelectorAll('.nav-link').forEach((el, i) => {
+    el.classList.toggle('active', (i===0&&page==='list')||(i===1&&page==='new'));
+  });
+  if (page === 'new') {
+    renderEditForm('newFormBody', {}, true);
+  }
+}
+
+// ─────────────────────────────────────────
+// Modal helpers
+// ─────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+// ─────────────────────────────────────────
+// CSV Export
+// ─────────────────────────────────────────
+function exportCSV() {
+  const headers = ['案件名','エンドクライアント','担当者','開催日','準備日','会場','業務内容','見積提出期限','見積ステータス','ステータス','メモ'];
+  const rows = projects.map(p => [
+    p.name, p.client, p.contact, p.date, p.prepDate, p.venue, p.biz, p.dl, p.estStatus, p.status, p.note
+  ].map(v => '"' + String(v||'').replace(/"/g,'""') + '"'));
+  const csv = '\uFEFF' + [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'newsbase-projects-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('✓ CSVを出力しました');
+}
+
+// ─────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────
+loadData();
+renderTable();
+updateStats();
+</script>
+</body>
+</html>
