@@ -190,14 +190,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg2);color:var(--tex
         <button class="dtab on" onclick="switchDetailTab('overview',this)">概要</button>
         <button class="dtab" onclick="switchDetailTab('requests',this)">依頼事項</button>
         <button class="dtab" onclick="switchDetailTab('pending',this)">確認事項</button>
-        <button class="dtab" onclick="switchDetailTab('tasks',this)">タスク</button>
         <button class="dtab" onclick="switchDetailTab('summary',this)">メール要約</button>
       </div>
       <div class="detail-body">
         <div class="dpane on" id="dpane-overview"><div class="detail-empty">左の案件一覧から案件を選択してください</div></div>
         <div class="dpane" id="dpane-requests"></div>
         <div class="dpane" id="dpane-pending"></div>
-        <div class="dpane" id="dpane-tasks"></div>
         <div class="dpane" id="dpane-summary"></div>
       </div>
     </div>
@@ -406,51 +404,6 @@ function renderDetail(p) {
       }).join('')}</div>`
     : `<div class="empty-items">未確認事項はありません ✓</div>`;
 
-  // ── タスクタブ ────────────────────────────────────────────
-  const nextActions = Array.isArray(p.next_actions) ? p.next_actions : [];
-  const ourTasks    = Array.isArray(p.our_tasks)    ? p.our_tasks    : [];
-
-  const naHTML = nextActions.length
-    ? nextActions.map(a => {
-        const pri  = typeof a === 'object' ? (a.priority || '') : '';
-        const dl   = typeof a === 'object' ? (a.deadline  || '') : '';
-        const text = typeof a === 'object' ? (a.text       || '') : String(a);
-        const col  = priorityColor(pri);
-        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:7px;background:var(--bg2);border:0.5px solid var(--border-l);margin-bottom:6px">
-          <span style="font-size:14px;flex-shrink:0;margin-top:1px">${esc(pri)}</span>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;color:var(--text);line-height:1.5">${esc(text)}</div>
-            ${dl ? `<div style="font-size:10px;color:${col};font-family:'JetBrains Mono',monospace;margin-top:3px;font-weight:500">期限: ${esc(dl)}</div>` : ''}
-          </div>
-        </div>`;
-      }).join('')
-    : `<div style="font-size:12px;color:var(--text3);text-align:center;padding:16px;background:var(--bg2);border-radius:7px">ネクストアクションはありません</div>`;
-
-  const taskHTML = ourTasks.length
-    ? ourTasks.map(t => {
-        const done = typeof t === 'object' ? !!t.done : false;
-        const text = typeof t === 'object' ? (t.text || '') : String(t);
-        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:7px;border:0.5px solid transparent;${done ? 'background:var(--green-l,#f0fdf4);border-color:#bbf7d0;' : 'background:var(--blue-l,#eff6ff);border-color:#bfdbfe;'}margin-bottom:6px">
-          <span style="font-size:13px;flex-shrink:0;margin-top:2px;font-weight:700;${done ? 'color:var(--green,#16a34a)' : 'color:var(--blue,#2563eb)'}">${done ? '✓' : '□'}</span>
-          <span style="font-size:12px;line-height:1.5;${done ? 'color:var(--green-t,#15803d);text-decoration:line-through;opacity:.7' : 'color:var(--blue-t,#1d4ed8)'}">${esc(text)}</span>
-        </div>`;
-      }).join('')
-    : `<div style="font-size:12px;color:var(--text3);text-align:center;padding:16px;background:var(--bg2);border-radius:7px">タスクはありません ✓</div>`;
-
-  document.getElementById('dpane-tasks').innerHTML = `
-    <div style="margin-bottom:14px">
-      <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">
-        ネクストアクション
-      </div>
-      ${naHTML}
-    </div>
-    <div>
-      <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">
-        KST対応タスク
-      </div>
-      ${taskHTML}
-    </div>`;
-
   // ── メール要約 ───────────────────────────────────────────────
   const hist = Array.isArray(p.email_history) ? p.email_history : [];
   // 送受信タイムライン生成
@@ -502,7 +455,7 @@ window.switchDetailTab = (name, btn) => {
   switchDetailTabTo(name);
 };
 function switchDetailTabTo(name) {
-  ['overview','requests','pending','tasks','summary'].forEach(t => {
+  ['overview','requests','pending','summary'].forEach(t => {
     document.getElementById('dpane-'+t)?.classList.toggle('on', t===name);
   });
 }
