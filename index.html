@@ -398,14 +398,43 @@ function renderDetail(p) {
 
   // ── メール要約 ───────────────────────────────────────────────
   const hist = Array.isArray(p.email_history) ? p.email_history : [];
+  // 送受信タイムライン生成
+  const histItems = hist.map(h => {
+    const dir = h.dir || '';
+    const isSent = dir === '→送信';
+    const isRecv = dir === '←受信';
+    const dirLabel = isSent
+      ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;color:var(--blue-t);background:var(--blue-l);padding:1px 6px;border-radius:10px;flex-shrink:0">→ 送信</span>`
+      : isRecv
+        ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;color:var(--green-t);background:var(--green-l);padding:1px 6px;border-radius:10px;flex-shrink:0">← 受信</span>`
+        : '';
+    return `<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border-l)">
+      <span style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:11px;flex-shrink:0;min-width:30px;margin-top:1px">${esc(h.date||'')}</span>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">
+          ${dirLabel}
+          <span style="font-size:11px;color:var(--text3)">${esc(h.from||'')}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5">${esc(h.text||'')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
   document.getElementById('dpane-summary').innerHTML = `
     <div class="sum-box">
       <div class="sum-meta">${esc(p.latest_sender||p.contact||'—')} · ${esc(p.latest_email_date||p.synced_at?.slice(0,10)||'—')} · 最新メール</div>
       <div class="sum-txt">${esc(p.latest_summary||p.email_subject||'要約情報がありません')}</div>
     </div>
-    ${hist.length ? `<div class="hist-title">過去のやりとり</div><div class="hist-list">${hist.map(h =>
-      `<div class="hist-row"><span class="hist-date">${esc(h.date||'')}</span><span class="hist-text">${esc(h.text||'')}</span></div>`
-    ).join('')}</div>` : ''}`;
+    ${hist.length ? `
+      <div style="font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <span>やりとり履歴</span>
+        <span style="font-weight:400;font-size:10px">${hist.length}件</span>
+      </div>
+      <div style="margin-bottom:4px;display:flex;gap:6px">
+        <span style="font-size:10px;color:var(--blue-t);background:var(--blue-l);padding:1px 6px;border-radius:10px">→ 送信: ${hist.filter(h=>h.dir==='→送信').length}件</span>
+        <span style="font-size:10px;color:var(--green-t);background:var(--green-l);padding:1px 6px;border-radius:10px">← 受信: ${hist.filter(h=>h.dir==='←受信').length}件</span>
+      </div>
+      <div>${histItems}</div>` : '<div class="empty-items">メール履歴がありません</div>'}`;
 
   switchDetailTabTo(currentTab);
 }
