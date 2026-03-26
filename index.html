@@ -305,6 +305,14 @@ window.setFilter = (f, btn) => {
   renderList();
 };
 
+// ── priorityColor ヘルパー ─────────────────────────────────
+function priorityColor(pri) {
+  if (!pri) return 'var(--text3)';
+  if (pri.includes('🔴')) return '#dc2626';
+  if (pri.includes('🟡')) return '#d97706';
+  return '#16a34a';
+}
+
 window.renderList = () => {
   const q = document.getElementById('listSearch')?.value.toLowerCase() || '';
   const list = allProjects.filter(p => {
@@ -401,13 +409,6 @@ function renderDetail(p) {
   // ── タスクタブ ────────────────────────────────────────────
   const nextActions = Array.isArray(p.next_actions) ? p.next_actions : [];
   const ourTasks    = Array.isArray(p.our_tasks)    ? p.our_tasks    : [];
-
-  const priorityColor = (pri) => {
-    if (!pri) return 'var(--text3)';
-    if (pri.includes('🔴')) return '#dc2626';
-    if (pri.includes('🟡')) return '#d97706';
-    return '#16a34a';
-  };
 
   const naHTML = nextActions.length
     ? nextActions.map(a => {
