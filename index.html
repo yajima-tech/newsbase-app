@@ -177,6 +177,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:var(--bg2);color:var(--tex
         <button class="ftab" id="ftab-nb" onclick="setCompany('nb',this)">ニューズベース</button>
         <button class="ftab" id="ftab-gl" onclick="setCompany('gl',this)">グラムリンク</button>
         <button class="ftab" id="ftab-fmx" onclick="setCompany('fmx',this)">FMX</button>
+        <button class="ftab" id="ftab-jcd" onclick="setCompany('jcd',this)">JCD</button>
       </div>
       <div class="list-search">
         <input type="text" placeholder="案件名・クライアントで検索..." id="listSearch" oninput="renderList()">
@@ -245,11 +246,11 @@ const db  = getFirestore(app);
 let allProjects   = [];
 let currentId     = null;
 let currentFilter = 'active';
-let currentCompany = 'all'; // 'all' | 'nb' | 'gl' | 'fmx'
+let currentCompany = 'all'; // 'all' | 'nb' | 'gl' | 'fmx' | 'jcd'
 
 window.setCompany = (c, btn) => {
   currentCompany = c;
-  document.querySelectorAll('#ftab-all-co,#ftab-nb,#ftab-gl,#ftab-fmx').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('#ftab-all-co,#ftab-nb,#ftab-gl,#ftab-fmx,#ftab-jcd').forEach(t => t.classList.remove('on'));
   btn.classList.add('on');
   renderList();
 };
@@ -335,9 +336,11 @@ window.renderList = () => {
     if (currentFilter === 'lost'   && !isLost) return false;
     const isGL  = p.id && p.id.startsWith('gl_');
     const isFMX = p.id && p.id.startsWith('fmx_');
-    if (currentCompany === 'nb'  && (isGL || isFMX))   return false;
+    const isJCD = p.id && p.id.startsWith('jcd_');
+    if (currentCompany === 'nb'  && (isGL || isFMX || isJCD)) return false;
     if (currentCompany === 'gl'  && !isGL)              return false;
     if (currentCompany === 'fmx' && !isFMX)            return false;
+    if (currentCompany === 'jcd' && !isJCD)             return false;
     if (q) {
       const s = ((p.project_name||'') + (p.client||'')).toLowerCase();
       if (!s.includes(q)) return false;
@@ -354,7 +357,8 @@ window.renderList = () => {
   // 会社別にグループ分け
   const glList  = list.filter(p =>  p.id && p.id.startsWith('gl_'));
   const fmxList = list.filter(p =>  p.id && p.id.startsWith('fmx_'));
-  const nbList  = list.filter(p => !p.id || (!p.id.startsWith('gl_') && !p.id.startsWith('fmx_')));
+  const jcdList = list.filter(p =>  p.id && p.id.startsWith('jcd_'));
+  const nbList  = list.filter(p => !p.id || (!p.id.startsWith('gl_') && !p.id.startsWith('fmx_') && !p.id.startsWith('jcd_')));
 
   function makeRows(arr) {
     return arr.map(p => {
@@ -380,7 +384,8 @@ window.renderList = () => {
   wrap.innerHTML =
     (showAll || currentCompany === 'nb'  ? makeSection('ニューズベース', '#2563eb', nbList)  : '') +
     (showAll || currentCompany === 'gl'  ? makeSection('グラムリンク',   '#7c3aed', glList)  : '') +
-    (showAll || currentCompany === 'fmx' ? makeSection('FMX',           '#d97706', fmxList) : '');
+    (showAll || currentCompany === 'fmx' ? makeSection('FMX',           '#d97706', fmxList) : '') +
+    (showAll || currentCompany === 'jcd' ? makeSection('JCD',           '#059669', jcdList) : '');
 
   if (!wrap.innerHTML) {
     wrap.innerHTML = '<div class="detail-empty">該当する案件がありません</div>';
