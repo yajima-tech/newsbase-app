@@ -254,6 +254,13 @@ window.setCompany = (c, btn) => {
   btn.classList.add('on');
   renderList();
 };
+
+function getCompany(p) {
+  if (p.id && p.id.startsWith('gl_'))  return 'gl';
+  if (p.id && p.id.startsWith('fmx_')) return 'fmx';
+  if (p.id && p.id.startsWith('jcd_')) return 'jcd';
+  return 'nb';
+}
 let currentTab    = 'overview';
 
 // ── ステータス→バッジ対応表 ─────────────────────────────────
@@ -334,13 +341,7 @@ window.renderList = () => {
     const isLost = p.status === '失注';
     if (currentFilter === 'active' && isLost)  return false;
     if (currentFilter === 'lost'   && !isLost) return false;
-    const isGL  = p.id && p.id.startsWith('gl_');
-    const isFMX = p.id && p.id.startsWith('fmx_');
-    const isJCD = p.id && p.id.startsWith('jcd_');
-    if (currentCompany === 'nb'  && (isGL || isFMX || isJCD)) return false;
-    if (currentCompany === 'gl'  && !isGL)              return false;
-    if (currentCompany === 'fmx' && !isFMX)            return false;
-    if (currentCompany === 'jcd' && !isJCD)             return false;
+    if (currentCompany !== 'all' && getCompany(p) !== currentCompany) return false;
     if (q) {
       const s = ((p.project_name||'') + (p.client||'')).toLowerCase();
       if (!s.includes(q)) return false;
@@ -355,10 +356,10 @@ window.renderList = () => {
   }
 
   // 会社別にグループ分け
-  const glList  = list.filter(p =>  p.id && p.id.startsWith('gl_'));
-  const fmxList = list.filter(p =>  p.id && p.id.startsWith('fmx_'));
-  const jcdList = list.filter(p =>  p.id && p.id.startsWith('jcd_'));
-  const nbList  = list.filter(p => !p.id || (!p.id.startsWith('gl_') && !p.id.startsWith('fmx_') && !p.id.startsWith('jcd_')));
+  const nbList  = list.filter(p => getCompany(p) === 'nb');
+  const glList  = list.filter(p => getCompany(p) === 'gl');
+  const fmxList = list.filter(p => getCompany(p) === 'fmx');
+  const jcdList = list.filter(p => getCompany(p) === 'jcd');
 
   function makeRows(arr) {
     return arr.map(p => {
